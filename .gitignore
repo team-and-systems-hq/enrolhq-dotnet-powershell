@@ -1,0 +1,53 @@
+# ---- .NET / C# ----
+bin/
+obj/
+.vs/
+*.user
+*.suo
+*.userprefs
+*.sln.docstates
+*.DotSettings.user
+project.lock.json
+
+# NuGet
+*.nupkg
+*.snupkg
+.nuget/
+packages/
+
+# Build output
+artifacts/
+publish/
+
+# ---- PowerShell ----
+# Pester test results
+TestResults/
+testResults.xml
+coverage.xml
+
+# ---- Secrets / Environment ----
+.env
+.env.*
+*.pfx
+*.key
+credentials.json
+appsettings.Development.json
+appsettings.Local.json
+
+# ---- IDEs and Editors ----
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+.DS_Store
+Thumbs.db
+
+# ---- Node (if using openapi-diff or other JS tools) ----
+node_modules/
+package-lock.json
+
+# ---- Temporary and logs ----
+tmp/
+temp/
+*.log

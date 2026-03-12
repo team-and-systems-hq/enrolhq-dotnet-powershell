@@ -1,0 +1,3 @@
+@{
+    'EnrolHQ.PowerShell' = '1.*'
+}
