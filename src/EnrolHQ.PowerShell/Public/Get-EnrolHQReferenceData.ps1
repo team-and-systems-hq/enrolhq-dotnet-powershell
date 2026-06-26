@@ -13,6 +13,11 @@ function Get-EnrolHQReferenceData {
         Get-EnrolHQReferenceData -Type Countries
     .EXAMPLE
         Get-EnrolHQReferenceData -Type Languages | Select-Object id, name
+    .EXAMPLE
+        Get-EnrolHQReferenceData -Type ApplicationStatusSettings |
+            Select-Object application_status, status_label, is_status_enabled
+
+        List per-status labels and flags configured for the school.
     #>
     [CmdletBinding()]
     param(
@@ -30,7 +35,8 @@ function Get-EnrolHQReferenceData {
             'MedicalConditions',
             'ParentRelationships',
             'ProfileCategories',
-            'ProfileCategoryOptions'
+            'ProfileCategoryOptions',
+            'ApplicationStatusSettings'
         )]
         [string]$Type,
 
@@ -52,6 +58,7 @@ function Get-EnrolHQReferenceData {
         ParentRelationships   = 'parents-relationships/'
         ProfileCategories     = 'profile-categories/'
         ProfileCategoryOptions = 'profile-category-options/'
+        ApplicationStatusSettings = 'application-status-settings/'
     }
 
     $endpoint = $endpointMap[$Type]

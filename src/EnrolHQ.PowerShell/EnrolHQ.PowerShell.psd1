@@ -1,6 +1,6 @@
 @{
     RootModule        = 'EnrolHQ.PowerShell.psm1'
-    ModuleVersion     = '1.0.0'
+    ModuleVersion     = '1.1.0'
     GUID              = 'a3f7c8e1-5d42-4b9a-9e6f-1a2b3c4d5e6f'
     Author            = 'Team and Systems HQ'
     CompanyName       = 'Team and Systems HQ'
@@ -29,6 +29,10 @@
         'Remove-EnrolHQDocument'
         'Get-EnrolHQNotes'
         'New-EnrolHQNote'
+        'Get-EnrolHQActivityLog'
+        'Get-EnrolHQAuditLog'
+        'Get-EnrolHQCmsSettings'
+        'Get-EnrolHQMetafields'
         'Get-EnrolHQReferenceData'
         'Get-EnrolHQAnalytics'
         'Invoke-EnrolHQRequest'
@@ -44,7 +48,7 @@
             Tags         = @('EnrolHQ', 'School', 'Enrolment', 'Admissions', 'API', 'REST')
             LicenseUri   = 'https://github.com/team-and-systems-hq/enrolhq-dotnet-powershell/blob/main/LICENSE'
             ProjectUri   = 'https://github.com/team-and-systems-hq/enrolhq-dotnet-powershell'
-            ReleaseNotes = 'Initial release of EnrolHQ PowerShell module'
+            ReleaseNotes = 'v1.1.0: Add read-only audit log (cursor pagination), CMS settings, metafields, activity log, and application-status-settings reference data. Fix bulk ChangeStatus to use repeated id query params.'
         }
     }
 }

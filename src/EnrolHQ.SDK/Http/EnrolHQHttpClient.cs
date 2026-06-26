@@ -189,6 +189,39 @@ public sealed class EnrolHQHttpClient : IDisposable
         return results;
     }
 
+    /// <summary>
+    /// Fetches all pages for a cursor-paginated endpoint and returns the combined results.
+    /// </summary>
+    /// <remarks>
+    /// Some endpoints (e.g. <c>audit/log/</c>) use DRF cursor pagination: each page is
+    /// <c>{ next, previous, results }</c> with no total <c>count</c>. The cursor is opaque,
+    /// so rather than incrementing a page number this follows the absolute <c>next</c> URL
+    /// returned by the server verbatim until it is null.
+    /// </remarks>
+    public async Task<List<T>> GetAllCursorPagesAsync<T>(string endpoint,
+        Dictionary<string, string?>? queryParams = null, int pageSize = 100, int maxPages = 10_000,
+        CancellationToken cancellationToken = default)
+    {
+        var results = new List<T>();
+        var firstParams = new Dictionary<string, string?>(queryParams ?? [])
+        {
+            ["page_size"] = pageSize.ToString(),
+        };
+
+        string? url = BuildUrl(endpoint, firstParams);
+        for (int page = 1; page <= maxPages && url is not null; page++)
+        {
+            var response = await GetRawAsync(url, cancellationToken).ConfigureAwait(false);
+            var pageData = (await response.Content
+                .ReadFromJsonAsync<PaginatedResponse<T>>(JsonOptions, cancellationToken)
+                .ConfigureAwait(false))!;
+            results.AddRange(pageData.Results);
+            // The server-provided `next` already encodes cursor + page_size + filters.
+            url = pageData.Next;
+        }
+        return results;
+    }
+
     private static StringContent? SerializeBody(object? body)
         => body is not null
             ? new StringContent(JsonSerializer.Serialize(body, JsonOptions), Encoding.UTF8, "application/json")

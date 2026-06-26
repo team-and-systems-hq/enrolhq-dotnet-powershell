@@ -25,7 +25,13 @@ function Invoke-EnrolHQRestMethod {
         [hashtable]$QueryParameters,
 
         [Parameter()]
-        [int]$TimeoutSec = 0
+        [int]$TimeoutSec = 0,
+
+        # When set, $Endpoint is treated as a fully-qualified URL and used
+        # verbatim (no base URL prefixing, no query-string building). Used to
+        # follow the absolute `next` links returned by cursor pagination.
+        [Parameter()]
+        [switch]$AbsoluteEndpoint
     )
 
     if (-not $script:EnrolHQConnection) {
@@ -43,21 +49,39 @@ function Invoke-EnrolHQRestMethod {
     $timeout = if ($TimeoutSec -gt 0) { $TimeoutSec } else { $conn.TimeoutSeconds }
     $maxRetries = $conn.MaxRetries
 
-    # Build URL with query parameters
-    $url = $conn.BuildUrl($Endpoint)
-    if ($QueryParameters -and $QueryParameters.Count -gt 0) {
-        $queryParts = [System.Collections.Generic.List[string]]::new()
-        foreach ($key in $QueryParameters.Keys) {
-            $val = $QueryParameters[$key]
-            if ($null -ne $val) {
+    # Build URL with query parameters. When -AbsoluteEndpoint is set the
+    # endpoint is already a full URL (e.g. a cursor `next` link) and is used
+    # as-is — the query string it carries must not be touched.
+    if ($AbsoluteEndpoint) {
+        $url = $Endpoint
+    }
+    else {
+        $url = $conn.BuildUrl($Endpoint)
+        if ($QueryParameters -and $QueryParameters.Count -gt 0) {
+            $queryParts = [System.Collections.Generic.List[string]]::new()
+            foreach ($key in $QueryParameters.Keys) {
+                $val = $QueryParameters[$key]
+                if ($null -eq $val) { continue }
+                $encKey = [System.Uri]::EscapeDataString($key)
+                # Emit array values as repeated key=value pairs (e.g. id=a&id=b)
+                # rather than a single comma-joined value. This matches Django
+                # REST Framework's convention for list/`__in` filters; the
+                # bulk change-status endpoint in particular requires repeated
+                # `id` params and rejects a comma-joined `id__in`.
                 if ($val -is [array]) {
-                    $val = $val -join ','
+                    foreach ($item in $val) {
+                        if ($null -ne $item) {
+                            $queryParts.Add("$encKey=$([System.Uri]::EscapeDataString([string]$item))")
+                        }
+                    }
                 }
-                $queryParts.Add("$([System.Uri]::EscapeDataString($key))=$([System.Uri]::EscapeDataString($val))")
+                else {
+                    $queryParts.Add("$encKey=$([System.Uri]::EscapeDataString([string]$val))")
+                }
             }
-        }
-        if ($queryParts.Count -gt 0) {
-            $url += '?' + ($queryParts -join '&')
+            if ($queryParts.Count -gt 0) {
+                $url += '?' + ($queryParts -join '&')
+            }
         }
     }
 

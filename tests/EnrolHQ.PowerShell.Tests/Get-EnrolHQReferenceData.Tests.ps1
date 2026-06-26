@@ -68,6 +68,13 @@ Describe 'Get-EnrolHQReferenceData' {
             }
         }
 
+        It 'Should call application-status-settings/ for ApplicationStatusSettings' {
+            Get-EnrolHQReferenceData -Type ApplicationStatusSettings
+            Should -Invoke Invoke-RestMethod -ModuleName EnrolHQ.PowerShell -ParameterFilter {
+                $Uri -like '*application-status-settings/*'
+            }
+        }
+
         It 'Should return results as flat list' {
             $results = Get-EnrolHQReferenceData -Type Countries
             $results | Should -HaveCount 2

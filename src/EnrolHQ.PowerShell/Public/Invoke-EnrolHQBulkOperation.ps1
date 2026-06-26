@@ -17,10 +17,13 @@ function Invoke-EnrolHQBulkOperation {
             -Data @{ text = 'Reminder: documents due' } `
             -Filter @{ entry_year = 2026; entry_grade = 7 }
     .EXAMPLE
-        # Change status to EOI for selected applications
+        # Change status to EOI for selected applications.
+        # ChangeStatus targets records by repeated `id` query params — pass the
+        # ids as an array. (The API rejects a comma-joined `id__in` with
+        # "Bulk action on all items is not allowed".)
         Invoke-EnrolHQBulkOperation -Operation ChangeStatus `
-            -Data @{ application_status = 2 } `
-            -Filter @{ id__in = 'uuid1,uuid2,uuid3' }
+            -Data @{ application_status = [EnrolHQStatus]::Eoi } `
+            -Filter @{ id = @('uuid1', 'uuid2', 'uuid3') }
     .EXAMPLE
         # Send bulk email
         Invoke-EnrolHQBulkOperation -Operation SendEmail -Data @{

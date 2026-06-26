@@ -54,9 +54,16 @@ public class ApplicationsResource : BaseResource
     /// <param name="status">The target status code.</param>
     public Task ChangeStatusAsync(IEnumerable<string> applicationIds, int status,
         CancellationToken ct = default)
-        => Http.PostAsync("applications-list/change_status/",
-            new { application_status = status },
-            new Dictionary<string, string?> { ["id__in"] = string.Join(",", applicationIds) }, ct);
+    {
+        // The API expects repeated `id` query params (e.g. ?id=a&id=b), not
+        // `id__in=`. Without a recognised filter the endpoint refuses with
+        // "Bulk action on all items is not allowed".
+        var query = string.Join("&", applicationIds.Select(id => "id=" + Uri.EscapeDataString(id)));
+        var endpoint = "applications-list/change_status/";
+        if (query.Length > 0)
+            endpoint += "?" + query;
+        return Http.PostAsync(endpoint, new { application_status = status }, cancellationToken: ct);
+    }
 
     /// <summary>Sends an email to the contacts of an application.</summary>
     /// <param name="applicationId">The application/student profile UUID.</param>
