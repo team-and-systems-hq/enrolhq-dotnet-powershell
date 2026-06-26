@@ -5,6 +5,48 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.1.0] - 2026-06-26
+
+Ports the read-only configuration/audit endpoints and the bulk change-status
+fix from the [EnrolHQ Python SDK](https://github.com/team-and-systems-hq/enrolhq-python)
+(v0.2.0) into both the PowerShell module and the C# SDK.
+
+### Added
+
+#### PowerShell Module
+- `Get-EnrolHQAuditLog` — read the audit / change log for a student profile or
+  parent (`audit/log/`). Filter with `-StudentProfileId` or `-ParentId`; uses
+  cursor pagination and follows every page automatically.
+- `Get-EnrolHQCmsSettings` — read the school's CMS / form configuration
+  (`cms-settings/`): enquiry & event-booking copy, form labels, terms &
+  conditions, parent-dashboard flags, and policy agreement items.
+- `Get-EnrolHQMetafields` — read per-model field configuration (`metafields/`)
+  with a `-Section` switch (`All`, `FieldSettings`, `DefaultFieldSettings`).
+- `Get-EnrolHQActivityLog` — list a student profile's activity log
+  (`activity-log/`), auto-paginated.
+- `Get-EnrolHQReferenceData -Type ApplicationStatusSettings` — per-status labels
+  and enabled / dashboard-visibility flags (`application-status-settings/`).
+- Cursor-pagination support: `Get-EnrolHQAllCursorPages` private helper plus an
+  `-AbsoluteEndpoint` switch on the core HTTP function to follow DRF `next` links.
+
+#### C# SDK
+- `client.AuditLog` — `ListByStudentProfileAsync` / `ListByParentAsync`, backed
+  by a new `EnrolHQHttpClient.GetAllCursorPagesAsync<T>` cursor paginator.
+- `client.CmsSettings.GetAsync()` and `client.Metafields` (`GetAsync`,
+  `FieldSettingsAsync`, `DefaultFieldSettingsAsync`).
+- `client.ReferenceData.ApplicationStatusSettingsAsync()`.
+
+### Fixed
+- Bulk **ChangeStatus** now targets records with repeated `id` query params
+  (e.g. `?id=a&id=b`) instead of a comma-joined `id__in`, which the API rejects
+  with "Bulk action on all items is not allowed". The PowerShell query-string
+  builder now emits array values as repeated keys; `ApplicationsResource.ChangeStatusAsync`
+  builds the same repeated-`id` query in the C# SDK.
+
+### Examples
+- `11-CmsSettings.ps1`, `12-Metafields.ps1`, `13-AuditLog.ps1`, and
+  `14-ActivityLog.ps1`.
+
 ## [1.0.0] - 2026-03-12
 
 ### Added
@@ -62,4 +104,5 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - 68 xUnit tests for the C# SDK
 - 51 Pester tests for the PowerShell module
 
+[1.1.0]: https://github.com/team-and-systems-hq/enrolhq-dotnet-powershell/releases/tag/v1.1.0
 [1.0.0]: https://github.com/team-and-systems-hq/enrolhq-dotnet-powershell/releases/tag/v1.0.0

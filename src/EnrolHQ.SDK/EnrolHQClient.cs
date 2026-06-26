@@ -22,6 +22,7 @@ public sealed class EnrolHQClient : IDisposable
     public DocumentsResource Documents { get; }
     public NotesResource Notes { get; }
     public ActivityLogResource ActivityLog { get; }
+    public AuditLogResource AuditLog { get; }
     public EmailLogResource EmailLog { get; }
     public EventsResource Events { get; }
     public EventBookingsResource EventBookings { get; }
@@ -29,6 +30,8 @@ public sealed class EnrolHQClient : IDisposable
     public StaffResource Staff { get; }
     public AnalyticsResource Analytics { get; }
     public ReferenceDataResource ReferenceData { get; }
+    public CmsSettingsResource CmsSettings { get; }
+    public MetafieldsResource Metafields { get; }
 
     /// <summary>The resolved API base URL.</summary>
     public string BaseUrl { get; }
@@ -50,6 +53,7 @@ public sealed class EnrolHQClient : IDisposable
         Documents = new DocumentsResource(_http);
         Notes = new NotesResource(_http);
         ActivityLog = new ActivityLogResource(_http);
+        AuditLog = new AuditLogResource(_http);
         EmailLog = new EmailLogResource(_http);
         Events = new EventsResource(_http);
         EventBookings = new EventBookingsResource(_http);
@@ -57,6 +61,8 @@ public sealed class EnrolHQClient : IDisposable
         Staff = new StaffResource(_http);
         Analytics = new AnalyticsResource(_http);
         ReferenceData = new ReferenceDataResource(_http);
+        CmsSettings = new CmsSettingsResource(_http);
+        Metafields = new MetafieldsResource(_http);
     }
 
     /// <summary>Create a client using a full base URL.</summary>

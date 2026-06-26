@@ -276,7 +276,7 @@ foreach ($year in $EntryYears) {
         $totalSynced++
     }
 
-    Write-Output "  $year: $($apps.Count) records upserted"
+    Write-Output "  ${year}: $($apps.Count) records upserted"
 }
 
 # ============================================================================

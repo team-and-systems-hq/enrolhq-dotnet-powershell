@@ -38,7 +38,7 @@ Get-EnrolHQApplications -EntryYear 2026 -All | Export-Csv applications.csv
 - Full coverage of core EnrolHQ API resources (applications, documents, events, staff, notes, analytics)
 - Automatic token refresh — connect once, the module handles re-authentication
 - Built-in retry with exponential backoff for transient errors (429, 5xx)
-- Auto-pagination — use `-All` to fetch every record without manual paging
+- Auto-pagination — use `-All` to fetch every record without manual paging (page-number and cursor pagination both handled automatically)
 - Support for Azure Automation, Azure Functions, and scheduled jobs
 - Multiple credential strategies: environment variables, SecretManagement, Azure Key Vault
 - `-WhatIf` and `-Confirm` on all write operations
@@ -97,11 +97,20 @@ Get-EnrolHQApplications -EntryYear 2026 -All | Export-Csv applications.csv
 | `Get-EnrolHQNotes` | List notes for a student profile |
 | `New-EnrolHQNote` | Add a note to a student profile |
 
+### Configuration & Logs
+
+| Cmdlet | Description |
+|--------|-------------|
+| `Get-EnrolHQActivityLog` | List a student profile's activity log (emails, status changes, notes) |
+| `Get-EnrolHQAuditLog` | List the audit/change log for a student profile or parent (cursor-paginated) |
+| `Get-EnrolHQCmsSettings` | Read the school's CMS / form configuration settings |
+| `Get-EnrolHQMetafields` | Read per-model field configuration (labels, enabled/mandatory by scope) |
+
 ### Reference Data & Analytics
 
 | Cmdlet | Description |
 |--------|-------------|
-| `Get-EnrolHQReferenceData` | Fetch reference data (campuses, countries, languages, etc.) |
+| `Get-EnrolHQReferenceData` | Fetch reference data (campuses, countries, languages, application status settings, etc.) |
 | `Get-EnrolHQAnalytics` | Fetch analytics reports (statistics, conversion, charts) |
 
 ### Advanced
@@ -135,6 +144,10 @@ examples/
 ├── 08-AzureFunction/               # Azure Functions project template
 ├── 09-ErrorHandling.ps1            # Error handling patterns
 ├── 10-ReferenceDataAndAnalytics.ps1  # Reference data and reports
+├── 11-CmsSettings.ps1              # Read CMS / form configuration
+├── 12-Metafields.ps1              # Inspect per-model field configuration
+├── 13-AuditLog.ps1                 # Audit/change log (cursor pagination)
+├── 14-ActivityLog.ps1              # Student profile activity log
 └── azure-data-sync/                # Azure SQL + Data Lake sync scripts
 ```
 

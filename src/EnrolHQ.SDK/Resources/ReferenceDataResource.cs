@@ -9,6 +9,15 @@ public class ReferenceDataResource : BaseResource
 {
     public ReferenceDataResource(EnrolHQHttpClient http) : base(http) { }
 
+    /// <summary>
+    /// Returns all application status settings: per-status labels and flags
+    /// (<c>application_status</c>, <c>status_label</c>, <c>default_status_label</c>,
+    /// <c>is_status_enabled</c>, <c>is_parent_dashboard_stage_visible</c>, ...),
+    /// keyed to the <see cref="Models.Enums.ApplicationStatus"/> enum.
+    /// </summary>
+    public Task<List<JsonElement>> ApplicationStatusSettingsAsync(CancellationToken ct = default)
+        => ListAllAsync<JsonElement>("application-status-settings/", pageSize: 1000, cancellationToken: ct);
+
     /// <summary>Returns all school campuses.</summary>
     public Task<List<Campus>> CampusesAsync(CancellationToken ct = default)
         => ListAllAsync<Campus>("school-campuses/", pageSize: 1000, cancellationToken: ct);
