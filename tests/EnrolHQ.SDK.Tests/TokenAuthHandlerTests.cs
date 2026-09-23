@@ -198,4 +198,35 @@ public class TokenAuthHandlerTests
         // The handler structure supports retry on 401
         handler.Should().NotBeNull();
     }
+
+    [Fact]
+    public void RefreshTimeout_Should_Default_To_30_Seconds()
+    {
+        // The refresh HttpClient previously used the .NET default (100 s)
+        // regardless of the client timeout; it now defaults to 30 s.
+        var handler = new TokenAuthHandler(BaseUrl, ApiToken);
+
+        handler.RefreshTimeout.Should().Be(TimeSpan.FromSeconds(30));
+    }
+
+    [Fact]
+    public void RefreshTimeout_Should_Honour_Explicit_Timeout_On_Both_Constructors()
+    {
+        var simple = new TokenAuthHandler(BaseUrl, ApiToken, TimeSpan.FromSeconds(5));
+        simple.RefreshTimeout.Should().Be(TimeSpan.FromSeconds(5));
+
+        var withInner = new TokenAuthHandler(BaseUrl, ApiToken, new HttpClientHandler(), TimeSpan.FromSeconds(7));
+        withInner.RefreshTimeout.Should().Be(TimeSpan.FromSeconds(7));
+    }
+
+    [Fact]
+    public void Should_Keep_1_1_0_Constructor_Signatures_For_Binary_Compatibility()
+    {
+        // Optional parameters are bound at compile time, so the original
+        // overloads must still exist as real constructors.
+        typeof(TokenAuthHandler).GetConstructor(new[] { typeof(string), typeof(string) })
+            .Should().NotBeNull();
+        typeof(TokenAuthHandler).GetConstructor(new[] { typeof(string), typeof(string), typeof(HttpMessageHandler) })
+            .Should().NotBeNull();
+    }
 }

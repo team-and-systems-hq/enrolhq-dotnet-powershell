@@ -18,6 +18,11 @@ function Get-EnrolHQReferenceData {
             Select-Object application_status, status_label, is_status_enabled
 
         List per-status labels and flags configured for the school.
+    .EXAMPLE
+        Get-EnrolHQReferenceData -Type LeadReferences | Select-Object id, name, slug
+
+        List lead references (also available as Get-EnrolHQLeadReferences).
+        Use a record's `id` as the `reference` field of a lead.
     #>
     [CmdletBinding()]
     param(
@@ -36,7 +41,8 @@ function Get-EnrolHQReferenceData {
             'ParentRelationships',
             'ProfileCategories',
             'ProfileCategoryOptions',
-            'ApplicationStatusSettings'
+            'ApplicationStatusSettings',
+            'LeadReferences'
         )]
         [string]$Type,
 
@@ -59,6 +65,7 @@ function Get-EnrolHQReferenceData {
         ProfileCategories     = 'profile-categories/'
         ProfileCategoryOptions = 'profile-category-options/'
         ApplicationStatusSettings = 'application-status-settings/'
+        LeadReferences        = 'lead-references/'
     }
 
     $endpoint = $endpointMap[$Type]

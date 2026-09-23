@@ -55,6 +55,14 @@ public class ReferenceDataResource : BaseResource
     public Task<List<JsonElement>> TimezonesAsync(CancellationToken ct = default)
         => ListAllAsync<JsonElement>("dictionaries/timezones/", pageSize: 1000, cancellationToken: ct);
 
+    /// <summary>
+    /// Returns all lead references (also available as
+    /// <see cref="LeadsResource.ReferencesAsync"/>). Use a record's
+    /// <see cref="LeadReference.Id"/> as a lead's <c>reference</c> field.
+    /// </summary>
+    public Task<List<LeadReference>> LeadReferencesAsync(CancellationToken ct = default)
+        => ListAllAsync<LeadReference>("lead-references/", pageSize: 1000, cancellationToken: ct);
+
     /// <summary>Returns all medical condition options.</summary>
     public Task<List<JsonElement>> MedicalConditionOptionsAsync(CancellationToken ct = default)
         => ListAllAsync<JsonElement>("medical-condition-options/", pageSize: 1000, cancellationToken: ct);

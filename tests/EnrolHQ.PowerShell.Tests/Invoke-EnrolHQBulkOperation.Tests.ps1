@@ -46,6 +46,17 @@ Describe 'Invoke-EnrolHQBulkOperation' {
             }
         }
 
+        It 'Sends a List[string] of ids as repeated id params too' {
+            $ids = [System.Collections.Generic.List[string]]::new()
+            $ids.Add('uuid1'); $ids.Add('uuid2')
+            Invoke-EnrolHQBulkOperation -Operation ChangeStatus `
+                -Data @{ application_status = 2 } `
+                -Filter @{ id = $ids } -Confirm:$false
+            Should -Invoke Invoke-RestMethod -ModuleName EnrolHQ.PowerShell -ParameterFilter {
+                $Uri -like '*id=uuid1&id=uuid2*' -and $Uri -notlike '*uuid1%20uuid2*'
+            }
+        }
+
         It 'Supports -WhatIf without calling the API' {
             Invoke-EnrolHQBulkOperation -Operation ChangeStatus `
                 -Data @{ application_status = 2 } `

@@ -19,6 +19,8 @@ public sealed class EnrolHQClient : IDisposable
     private bool _disposed;
 
     public ApplicationsResource Applications { get; }
+    public LeadsResource Leads { get; }
+    public FormsResource Forms { get; }
     public DocumentsResource Documents { get; }
     public NotesResource Notes { get; }
     public ActivityLogResource ActivityLog { get; }
@@ -37,6 +39,13 @@ public sealed class EnrolHQClient : IDisposable
     public string BaseUrl { get; }
 
     /// <summary>
+    /// Escape hatch: the underlying HTTP client, for endpoints without a
+    /// dedicated resource (e.g. <c>integrations/sync/finished/</c>).
+    /// Requests made through it still get token refresh and retries.
+    /// </summary>
+    public EnrolHQHttpClient Http => _http;
+
+    /// <summary>
     /// Create a client using your EnrolHQ domain
     /// (e.g. "enrol.cranbrook.nsw.edu.au" or "demo.enrolhq.com.au").
     /// </summary>
@@ -50,6 +59,8 @@ public sealed class EnrolHQClient : IDisposable
         BaseUrl = baseUrl.TrimEnd('/') + "/";
         _http = new EnrolHQHttpClient(BaseUrl, apiToken, timeout, maxRetries);
         Applications = new ApplicationsResource(_http);
+        Leads = new LeadsResource(_http);
+        Forms = new FormsResource(_http);
         Documents = new DocumentsResource(_http);
         Notes = new NotesResource(_http);
         ActivityLog = new ActivityLogResource(_http);

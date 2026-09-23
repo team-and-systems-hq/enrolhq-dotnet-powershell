@@ -30,12 +30,14 @@ public sealed class EnrolHQHttpClient : IDisposable
     {
         _baseUrl = baseUrl.TrimEnd('/') + "/";
 
-        var authHandler = new TokenAuthHandler(_baseUrl, apiToken);
+        // The same timeout bounds both API requests and the token-refresh call.
+        var effectiveTimeout = timeout ?? TimeSpan.FromSeconds(30);
+        var authHandler = new TokenAuthHandler(_baseUrl, apiToken, effectiveTimeout);
         var retryHandler = new RetryHandler(authHandler, maxRetries);
 
         _httpClient = new HttpClient(retryHandler, disposeHandler: true)
         {
-            Timeout = timeout ?? TimeSpan.FromSeconds(30),
+            Timeout = effectiveTimeout,
         };
     }
 

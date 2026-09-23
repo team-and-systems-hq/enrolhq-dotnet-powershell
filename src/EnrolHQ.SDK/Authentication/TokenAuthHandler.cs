@@ -9,6 +9,12 @@ namespace EnrolHQ.SDK.Authentication;
 /// DelegatingHandler that manages EnrolHQ token authentication.
 /// Uses a long-lived API token to obtain short-lived access tokens
 /// via the /accounts/refresh/ endpoint. Automatically refreshes on 401.
+/// <para>
+/// The refresh request runs on its own <see cref="HttpClient"/> and is bounded
+/// by <see cref="RefreshTimeout"/> (the configured client timeout, default
+/// 30 s). Previously it used the .NET default of 100 s regardless of the
+/// client timeout.
+/// </para>
 /// </summary>
 public sealed class TokenAuthHandler : DelegatingHandler
 {
@@ -19,18 +25,38 @@ public sealed class TokenAuthHandler : DelegatingHandler
     private readonly SemaphoreSlim _refreshLock = new(1, 1);
     private HttpClient? _refreshClient;
 
+    /// <summary>Default timeout for the token-refresh request when none is given.</summary>
+    public static readonly TimeSpan DefaultRefreshTimeout = TimeSpan.FromSeconds(30);
+
+    /// <summary>Timeout applied to the token-refresh request.</summary>
+    public TimeSpan RefreshTimeout { get; }
+
+    // The two original constructors are kept as real overloads (not optional
+    // parameters) so assemblies compiled against 1.1.0 still bind at runtime.
     public TokenAuthHandler(string baseUrl, string apiToken)
+        : this(baseUrl, apiToken, DefaultRefreshTimeout)
+    {
+    }
+
+    public TokenAuthHandler(string baseUrl, string apiToken, TimeSpan timeout)
         : base(new HttpClientHandler())
     {
         _baseUrl = baseUrl.TrimEnd('/') + "/";
         _apiToken = apiToken;
+        RefreshTimeout = timeout;
     }
 
     public TokenAuthHandler(string baseUrl, string apiToken, HttpMessageHandler innerHandler)
+        : this(baseUrl, apiToken, innerHandler, DefaultRefreshTimeout)
+    {
+    }
+
+    public TokenAuthHandler(string baseUrl, string apiToken, HttpMessageHandler innerHandler, TimeSpan timeout)
         : base(innerHandler)
     {
         _baseUrl = baseUrl.TrimEnd('/') + "/";
         _apiToken = apiToken;
+        RefreshTimeout = timeout;
     }
 
     protected override async Task<HttpResponseMessage> SendAsync(
@@ -69,7 +95,10 @@ public sealed class TokenAuthHandler : DelegatingHandler
             if (expectedVersion >= 0 && Volatile.Read(ref _tokenVersion) != expectedVersion)
                 return;
 
-            _refreshClient ??= new HttpClient(new HttpClientHandler(), disposeHandler: true);
+            _refreshClient ??= new HttpClient(new HttpClientHandler(), disposeHandler: true)
+            {
+                Timeout = RefreshTimeout,
+            };
             var refreshUrl = $"{_baseUrl}accounts/refresh/";
 
             using var request = new HttpRequestMessage(HttpMethod.Post, refreshUrl);
