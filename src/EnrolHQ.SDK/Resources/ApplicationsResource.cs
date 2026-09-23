@@ -33,6 +33,70 @@ public class ApplicationsResource : BaseResource
     public Task<JsonElement> GetAsync(string applicationId, CancellationToken ct = default)
         => Http.GetAsync<JsonElement>($"applications/{applicationId}/", cancellationToken: ct);
 
+    // ── Nested profile data ─────────────────────────────────────
+    //
+    // These live on the detail serializer only. ListAllAsync / ListPageAsync
+    // return a summary serializer that omits them, which is why a list-based
+    // export appears to be missing emergency contacts and medical data entirely.
+
+    /// <summary>Returns the application's emergency contacts.</summary>
+    /// <remarks>
+    /// Each contact has <c>id</c>, <c>title</c>, <c>first_name</c>, <c>last_name</c>,
+    /// <c>relationship_to_student</c>, <c>home_phone</c>, <c>mobile_phone</c>,
+    /// <c>business_phone</c>, <c>external_id</c> and <c>updated_at</c>.
+    /// Not available from <see cref="ListAllAsync"/> — this fetches the detail record.
+    /// </remarks>
+    /// <param name="applicationId">The application/student profile UUID.</param>
+    public async Task<List<JsonElement>> EmergencyContactsAsync(string applicationId, CancellationToken ct = default)
+    {
+        var detail = await GetAsync(applicationId, ct).ConfigureAwait(false);
+        return ArrayProperty(detail, "emergency_contacts");
+    }
+
+    /// <summary>Returns the application's medical data (doctor, medicare, conditions).</summary>
+    /// <remarks>
+    /// Not available from <see cref="ListAllAsync"/> — this fetches the detail
+    /// record. Returns an empty object when the detail carries no medical data.
+    /// </remarks>
+    /// <param name="applicationId">The application/student profile UUID.</param>
+    public async Task<JsonElement> MedicalDataAsync(string applicationId, CancellationToken ct = default)
+    {
+        var detail = await GetAsync(applicationId, ct).ConfigureAwait(false);
+        return detail.ValueKind == JsonValueKind.Object
+            && detail.TryGetProperty("medical_data", out var medical)
+            && medical.ValueKind == JsonValueKind.Object
+            ? medical
+            : EmptyObject();
+    }
+
+    /// <summary>Returns the application's guardians.</summary>
+    /// <remarks>Not available from <see cref="ListAllAsync"/> — this fetches the detail record.</remarks>
+    /// <param name="applicationId">The application/student profile UUID.</param>
+    public async Task<List<JsonElement>> GuardiansAsync(string applicationId, CancellationToken ct = default)
+    {
+        var detail = await GetAsync(applicationId, ct).ConfigureAwait(false);
+        return ArrayProperty(detail, "guardians");
+    }
+
+    private static List<JsonElement> ArrayProperty(JsonElement obj, string property)
+    {
+        var list = new List<JsonElement>();
+        if (obj.ValueKind == JsonValueKind.Object
+            && obj.TryGetProperty(property, out var array)
+            && array.ValueKind == JsonValueKind.Array)
+        {
+            foreach (var item in array.EnumerateArray())
+                list.Add(item);
+        }
+        return list;
+    }
+
+    private static JsonElement EmptyObject()
+    {
+        using var doc = JsonDocument.Parse("{}");
+        return doc.RootElement.Clone();
+    }
+
     /// <summary>Creates a new application.</summary>
     /// <param name="data">Request body — see the EnrolHQ API docs for the expected schema.</param>
     public async Task<JsonElement> CreateAsync(object data, CancellationToken ct = default)

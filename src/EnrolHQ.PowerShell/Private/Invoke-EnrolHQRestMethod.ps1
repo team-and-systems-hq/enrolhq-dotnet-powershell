@@ -31,7 +31,14 @@ function Invoke-EnrolHQRestMethod {
         # verbatim (no base URL prefixing, no query-string building). Used to
         # follow the absolute `next` links returned by cursor pagination.
         [Parameter()]
-        [switch]$AbsoluteEndpoint
+        [switch]$AbsoluteEndpoint,
+
+        # When set, the response body is written to this file path instead of
+        # being parsed and returned (Invoke-RestMethod -OutFile). Used for
+        # binary/CSV downloads such as the form-submits export. Nothing is
+        # returned on success.
+        [Parameter()]
+        [string]$OutFile
     )
 
     if (-not $script:EnrolHQConnection) {
@@ -67,8 +74,10 @@ function Invoke-EnrolHQRestMethod {
                 # rather than a single comma-joined value. This matches Django
                 # REST Framework's convention for list/`__in` filters; the
                 # bulk change-status endpoint in particular requires repeated
-                # `id` params and rejects a comma-joined `id__in`.
-                if ($val -is [array]) {
+                # `id` params and rejects a comma-joined `id__in`. Any
+                # enumerable counts (List[T], ArrayList, ...), not just [array];
+                # strings are enumerable too and must stay scalar.
+                if ($val -is [System.Collections.IEnumerable] -and $val -isnot [string]) {
                     foreach ($item in $val) {
                         if ($null -ne $item) {
                             $queryParts.Add("$encKey=$([System.Uri]::EscapeDataString([string]$item))")
@@ -93,6 +102,11 @@ function Invoke-EnrolHQRestMethod {
         Method     = $Method
         TimeoutSec = $timeout
         Headers    = $conn.GetAuthHeaders()
+    }
+
+    if ($OutFile) {
+        $requestParams['OutFile'] = $OutFile
+        Write-Debug "EnrolHQ: Response will be written to $OutFile"
     }
 
     if ($Body) {
