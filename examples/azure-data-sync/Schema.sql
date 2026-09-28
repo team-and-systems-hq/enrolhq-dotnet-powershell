@@ -98,34 +98,44 @@ CREATE TABLE dbo.EnrolHQ_SyncLog (
 
 -- ============================================================================
 -- Status label lookup (convenience view)
+-- These are the EnrolHQ default labels. Schools can rename statuses; the labels
+-- a school actually uses come from the application-status-settings/ endpoint.
 -- ============================================================================
 GO
 CREATE OR ALTER VIEW dbo.vw_EnrolHQ_StatusLabels AS
 SELECT * FROM (VALUES
-    (-1, 'Archived'),
-    (0,  'Enquiry (Online)'),
-    (1,  'Enquiry (Manual)'),
-    (2,  'EOI'),
-    (3,  'Interview'),
-    (4,  'Enrolment'),
-    (5,  'Offer of Enrolment'),
-    (6,  'Accepted'),
-    (7,  'Enrolled'),
-    (8,  'Deferred'),
-    (9,  'Waitlisted'),
-    (10, 'Withdrawn by Parent'),
-    (11, 'Declined by School'),
-    (12, 'Closed'),
-    (13, 'Enquiry (Event)'),
-    (14, 'Enquiry (Tour)'),
-    (15, 'Enquiry (Referred)'),
-    (16, 'Enquiry (Phone)'),
-    (17, 'Enquiry (Walk-in)'),
-    (18, 'Reserved'),
-    (19, 'Offer of Reserved Place'),
-    (20, 'Accepted Reserved Place'),
-    (21, 'Declined by Parent'),
-    (22, 'Cancelled by School')
+    (-1, 'Enquiry - Register Interest'),
+    (0,  'Enquiry - Online'),
+    (1,  'Enquiry - Event Booking'),
+    (2,  'Expression of Interest'),
+    (3,  'Enrolment'),
+    (4,  'Orientation'),
+    (5,  'Community'),
+    (6,  'Alumni'),
+    (7,  'Trashed'),
+    (8,  'Declined'),
+    (9,  'Wait List'),
+    (10, 'Reserved Place Offer'),
+    (11, 'Not Proceeding'),
+    (12, 'Enrolment Offer'),
+    (13, 'Interview'),
+    (14, 'Pending'),
+    (15, 'Custom Status 1'),
+    (16, 'Custom Status 2'),
+    (17, 'Custom Status 3'),
+    (18, 'Custom Status 4'),
+    (19, 'Custom Status 5'),
+    (20, 'Custom Status 6'),
+    (21, 'Custom Status 7'),
+    (22, 'Custom Status 8'),
+    (23, 'Custom Status 9'),
+    (24, 'Custom Status 10'),
+    (25, 'Custom Status 11'),
+    (26, 'Custom Status 12'),
+    (27, 'Custom Status 13'),
+    (28, 'Custom Status 14'),
+    (29, 'Custom Status 15'),
+    (30, 'Custom Status 16')
 ) AS T(StatusCode, StatusLabel);
 GO
 
@@ -165,5 +175,5 @@ SELECT
     a.ParentPhone
 FROM dbo.EnrolHQ_Applications a
 LEFT JOIN dbo.vw_EnrolHQ_StatusLabels s ON a.ApplicationStatus = s.StatusCode
-WHERE a.ApplicationStatus NOT IN (-1, 10, 11, 12, 21, 22);   -- exclude closed/archived
+WHERE a.ApplicationStatus NOT IN (7, 8, 11);   -- exclude trashed, declined, not proceeding
 GO
