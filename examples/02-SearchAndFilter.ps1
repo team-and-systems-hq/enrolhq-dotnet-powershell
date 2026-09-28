@@ -22,7 +22,7 @@ $year7 = Get-EnrolHQApplications -EntryYear 2026 -EntryGrade 7 -All
 Write-Host "`nYear 7 2026 applications: $($year7.Count)"
 
 # Filter by application status codes
-# 0 = EnquiryOnline, 1 = EnquiryManual, 2 = EOI, 4 = Enrolment
+# 0 = EnquiryOnline, 1 = EnquiryEvent, 2 = EOI, 3 = Enrolment
 $page = Get-EnrolHQApplications -ApplicationStatus @(0, 1) -PageSize 10
 Write-Host "`nEnquiries: $($page.Count) total"
 

@@ -31,9 +31,9 @@ try {
     $entryYear = (Get-Date).Year + 1
 
     # Get counts by status
-    $enquiryCount = Get-EnrolHQApplicationCount -EntryYear $entryYear -ApplicationStatus @(0, 1)
-    $eoiCount = Get-EnrolHQApplicationCount -EntryYear $entryYear -ApplicationStatus @(2)
-    $enrolmentCount = Get-EnrolHQApplicationCount -EntryYear $entryYear -ApplicationStatus @(4)
+    $enquiryCount = Get-EnrolHQApplicationCount -EntryYear $entryYear -ApplicationStatus @([EnrolHQStatus]::EnquiryOnline, [EnrolHQStatus]::EnquiryEvent)
+    $eoiCount = Get-EnrolHQApplicationCount -EntryYear $entryYear -ApplicationStatus @([EnrolHQStatus]::Eoi)
+    $enrolmentCount = Get-EnrolHQApplicationCount -EntryYear $entryYear -ApplicationStatus @([EnrolHQStatus]::Enrolment)
     $totalCount = Get-EnrolHQApplicationCount -EntryYear $entryYear
 
     $summary = @{

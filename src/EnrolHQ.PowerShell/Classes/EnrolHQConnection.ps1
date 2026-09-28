@@ -44,30 +44,40 @@ class EnrolHQConnection {
     }
 }
 
-# Application status enum constants for convenience
+# Application status enum constants for convenience.
+# Schools can rename statuses; read the labels a school actually uses with
+# Get-EnrolHQReferenceData -Type ApplicationStatusSettings.
 class EnrolHQStatus {
-    static [int]$Archived           = -1
+    static [int]$RegisterInterest   = -1
     static [int]$EnquiryOnline      = 0
-    static [int]$EnquiryManual      = 1
+    static [int]$EnquiryEvent       = 1
     static [int]$Eoi                = 2
-    static [int]$Interview          = 3
-    static [int]$Enrolment          = 4
-    static [int]$OfferEnrolment     = 5
-    static [int]$Accepted           = 6
-    static [int]$Enrolled           = 7
-    static [int]$Deferred           = 8
-    static [int]$Waitlisted         = 9
-    static [int]$WithdrawnByParent  = 10
-    static [int]$DeclinedBySchool   = 11
-    static [int]$Closed             = 12
-    static [int]$EnquiryEvent       = 13
-    static [int]$EnquiryTour        = 14
-    static [int]$EnquiryReferred    = 15
-    static [int]$EnquiryPhone       = 16
-    static [int]$EnquiryWalkIn      = 17
-    static [int]$Reserved           = 18
-    static [int]$OfferReservedPlace = 19
-    static [int]$AcceptedReservedPlace = 20
-    static [int]$DeclinedByParent   = 21
-    static [int]$CancelledBySchool  = 22
+    static [int]$Enrolment          = 3
+    static [int]$Orientation        = 4
+    static [int]$Community          = 5
+    static [int]$Alumni             = 6
+    static [int]$Trashed            = 7
+    static [int]$Declined           = 8
+    static [int]$Waitlist           = 9
+    static [int]$ReservedOffer      = 10
+    static [int]$NotProceeding      = 11
+    static [int]$EnrolmentOffer     = 12
+    static [int]$Interview          = 13
+    static [int]$Pending            = 14
+    static [int]$Custom1            = 15
+    static [int]$Custom2            = 16
+    static [int]$Custom3            = 17
+    static [int]$Custom4            = 18
+    static [int]$Custom5            = 19
+    static [int]$Custom6            = 20
+    static [int]$Custom7            = 21
+    static [int]$Custom8            = 22
+    static [int]$Custom9            = 23
+    static [int]$Custom10           = 24
+    static [int]$Custom11           = 25
+    static [int]$Custom12           = 26
+    static [int]$Custom13           = 27
+    static [int]$Custom14           = 28
+    static [int]$Custom15           = 29
+    static [int]$Custom16           = 30
 }

@@ -5,6 +5,51 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [Unreleased]
+
+### Fixed
+
+- **Application status codes were wrong.** `[EnrolHQStatus]` (PowerShell) and
+  `ApplicationStatus` (C#) did not match the codes the EnrolHQ API uses; only
+  0, 2 and 9 were correct. For example 7 was named `Enrolled` but is `Trashed`,
+  and 3 was named `Interview` but is `Enrolment`. Both now match the API and
+  the [EnrolHQ Python SDK](https://github.com/team-and-systems-hq/enrolhq-python).
+- The `azure-data-sync` examples (`Schema.sql`, `Sync-EnrolHQToSql.ps1`,
+  `Export-EnrolHQToDataLake.ps1`) used the same wrong labels, and
+  `vw_EnrolHQ_ParentContacts` excluded the wrong statuses. Databases built from
+  the old `Schema.sql` need `vw_EnrolHQ_StatusLabels` and
+  `vw_EnrolHQ_ParentContacts` recreated, and any stored `StatusLabel` values
+  re-synced.
+- `examples/08-AzureFunction/run.ps1` counted status 4 (Orientation) as
+  Enrolment; it now counts status 3.
+
+### Added
+
+- Custom statuses 9–16 (codes 23–30).
+
+### Changed
+
+- **Breaking:** status names that did not correspond to an API status were
+  removed, and three names kept their name but changed value. Code using any of
+  these needs reviewing, because it was acting on a different status than its
+  name suggested.
+
+  | Name | Was | Now |
+  |------|-----|-----|
+  | `Enrolment` | 4 | 3 |
+  | `Interview` | 3 | 13 |
+  | `EnquiryEvent` | 13 | 1 |
+
+  Removed: `Archived`, `EnquiryManual`, `OfferEnrolment`, `Accepted`,
+  `Enrolled`, `Deferred`, `Waitlisted`, `WithdrawnByParent`,
+  `DeclinedBySchool`, `Closed`, `EnquiryTour`, `EnquiryReferred`,
+  `EnquiryPhone`, `EnquiryWalkIn`, `Reserved`, `OfferReservedPlace`,
+  `AcceptedReservedPlace`, `DeclinedByParent`, `CancelledBySchool`.
+
+  Schools can rename statuses, so read the labels a school actually uses from
+  `Get-EnrolHQReferenceData -Type ApplicationStatusSettings` /
+  `client.ReferenceData.ApplicationStatusSettingsAsync()`.
+
 ## [1.2.0] - 2026-09-23
 
 Ports the leads and custom-forms resources, the application nested-data
